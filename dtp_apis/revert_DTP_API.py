@@ -196,6 +196,43 @@ class RevertAPI:
                 return False
         return True
 
+    def unlink_intent_status(self, asperf_iri, asplannned_iri):
+        """
+        Unlink intent status from a node
+
+        Parameters
+        ----------
+        asperf_iri: str, obligatory
+            an iri of an as-performed node
+        asplannned_iri: str, obligatory
+            an iri of an as-planned node
+
+        Returns
+        -------
+        bool
+            True if the node is unlinked and False otherwise
+        """
+        payload = json.dumps([{
+            "_domain": self.DTP_CONFIG.get_domain(),
+            "_iri": asperf_iri,
+            "_outE": [
+                {
+                    "_label": self.DTP_CONFIG.get_ontology_uri('intentStatusRelation'),
+                    "_targetIRI": asplannned_iri
+                }
+            ]
+        }])
+        response = self.put_guarded_request(payload=payload, url=self.DTP_CONFIG.get_api_url('update_unset'))
+        if not self.simulation_mode:
+            if response.ok:
+                logger_global.info(f"Removed link {self.DTP_CONFIG.get_ontology_uri('intentStatusRelation')} from "
+                                   f"{asperf_iri} to {asplannned_iri}")
+                return True
+            else:
+                logger_global.error("Unlink nodes failed. Response code: " + str(response.status_code))
+                return False
+        return True
+
     def delete_blob_from_platform(self, blob_uuid):
         """
         The method deletes a blob from DTP

@@ -215,7 +215,7 @@ class LinkAPI:
 
     def link_node_constr_to_operation(self, constr_node_iri, oper_node_iri):
         """
-        The method links a operation with a construction.
+        The method links an operation with a construction.
 
         Parameters
         ----------
@@ -245,6 +245,44 @@ class LinkAPI:
                 if self.session_logger is not None:
                     self.session_logger.info(
                         "DTP_API - NEW_LINK_CONSTR_OPERATION: " + constr_node_iri + ', ' + oper_node_iri)
+                return True
+            else:
+                logger_global.error("Linking nodes failed. Response code: " + str(response.status_code))
+                return False
+        return True
+
+    def link_node_asperf_to_asplanned(self, asperf_iri, asplannned_iri):
+        """
+        The method links an as-performed to as-planned node
+
+        Parameters
+        ----------
+        asperf_iri : str, obligatory
+            a valid IRI of an as-performed node
+        asplannned_iri : str, obligatory
+            a valid IRI of an as-planned node
+
+        Returns
+        ------
+        bool
+            True if the nodes has been linked, and False otherwise
+        """
+
+        payload = json.dumps([{
+            "_domain": self.DTP_CONFIG.get_domain(),
+            "_iri": asperf_iri,
+            "_outE": [{
+                "_label": self.DTP_CONFIG.get_ontology_uri('intentStatusRelation'),
+                "_targetIRI": asplannned_iri
+            }]
+        }])
+
+        response = self.put_guarded_request(payload=payload, url=self.DTP_CONFIG.get_api_url('update_set'))
+        if not self.simulation_mode:
+            if response.ok:
+                if self.session_logger is not None:
+                    self.session_logger.info(
+                        "DTP_API - NEW_LINK_INTENT_STATUS: " + asperf_iri + ', ' + asplannned_iri)
                 return True
             else:
                 logger_global.error("Linking nodes failed. Response code: " + str(response.status_code))

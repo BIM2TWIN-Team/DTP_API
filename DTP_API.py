@@ -98,7 +98,8 @@ class DTPApi(FetchAPI, CountAPI, CreateAPI, LinkAPI, RevertAPI, SendAPI, UpdateA
                              'update_construction': 'UPDATE_CONSTRUCTION_IRI',
                              'remove_param': 'REMOVED_PARAM_NODE_OPERATION',
                              'add_param': 'ADD_PARAM_NODE_OPERATION',
-                             'link_element_type': 'NEW_LINK_ELEMENT_ELEMENT_TYPE'}
+                             'link_element_type': 'NEW_LINK_ELEMENT_ELEMENT_TYPE',
+                             'link_intent_status': 'NEW_LINK_INTENT_STATUS'}
 
         try:
             self.log_markers = self.log_markers_node_classes | other_log_markers
@@ -314,6 +315,10 @@ class DTPApi(FetchAPI, CountAPI, CreateAPI, LinkAPI, RevertAPI, SendAPI, UpdateA
                 elif self.log_markers['link_element_type'] in line:
                     node_iri, element_type_iri = get_info_from_log(line, self.log_markers['link_element_type'])
                     self.unlink_element_type(node_iri, element_type_iri)
+                    counter += 1
+                elif self.log_markers['link_intent_status'] in line:
+                    asperf_iri, asplannned_iri = get_info_from_log(line, self.log_markers['link_intent_status'])
+                    self.unlink_intent_status(asperf_iri, asplannned_iri)
                     counter += 1
                 else:
                     try:
