@@ -21,7 +21,7 @@ def parse_args():
     Get parameters from user
     """
     parser = argparse.ArgumentParser(description='Revert a session with log file')
-    parser.add_argument('--xml_path', '-x', type=str, help='path to config xml file', default='../DTP_config.xml')
+    parser.add_argument('--config_path', '-x', type=str, help='path to config file', default='../DTP_config.yaml')
     parser.add_argument('--revert', '-r', type=str, help='path to session log file', required=True)
 
     return parser.parse_args()

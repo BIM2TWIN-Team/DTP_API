@@ -1,0 +1,94 @@
+API_URLS:
+  get_find_elements: https://api.thinginthefuture.bim2twin.eu/avatars/find
+  add_node: https://api.thinginthefuture.bim2twin.eu/batch/avatars
+  count_nodes: https://api.thinginthefuture.bim2twin.eu/avatars/count
+  get_blobs_per_element: https://api.thinginthefuture.bim2twin.eu/avatars/_ID_/blobs
+  delete_avatar: https://api.thinginthefuture.bim2twin.eu/avatars/_ID_
+  delete_avatar_iri: https://api.thinginthefuture.bim2twin.eu/avatars/delete
+  download_blob: https://api.thinginthefuture.bim2twin.eu/blobs/_ID_/download
+  send_blob: https://api.thinginthefuture.bim2twin.eu/blobs
+  delete_blob: https://api.thinginthefuture.bim2twin.eu/blobs/_ID_
+  link_blob: https://api.thinginthefuture.bim2twin.eu/blobs/link
+  unlink_blob: https://api.thinginthefuture.bim2twin.eu/blobs/unlink
+  update_set: https://api.thinginthefuture.bim2twin.eu/batch/avatars/update/set
+  update_unset: https://api.thinginthefuture.bim2twin.eu/batch/avatars/update/unset
+
+ONTOLOGY_URIS:
+  # Properties
+  isAsDesigned: https://www.bim2twin.eu/ontology/Core#isAsDesigned
+  progress: https://www.bim2twin.eu/ontology/Core#progress
+  timeStamp: https://www.bim2twin.eu/ontology/Core#timeStamp
+  id: https://www.bim2twin.eu/ontology/Core#id
+  CompletelyDetected: https://www.bim2twin.eu/ontology/Core#CompletelyDetected
+  defect_criticality: https://www.bim2twin.eu/ontology/CoreExtension#criticality
+  GeometricDefect: https://www.bim2twin.eu/ontology/CoreExtension#GeometricDefect
+  PositionDefect: https://www.bim2twin.eu/ontology/CoreExtension#PositionDefect
+  AxisOffset: https://www.bim2twin.eu/ontology/CoreExtension#AxisOffset
+  processStart: https://www.bim2twin.eu/ontology/Core#processStart
+  processEnd: https://www.bim2twin.eu/ontology/Core#processEnd
+  lastUpdatedOn: https://www.bim2twin.eu/ontology/Core#lastUpdatedOn
+  plannedStart: https://www.bim2twin.eu/ontology/Core#plannedStart
+  plannedEnd: https://www.bim2twin.eu/ontology/Core#plannedEnd
+
+  # Class
+  classElement: https://w3id.org/bot#Element
+  task: https://www.bim2twin.eu/ontology/Core#Task
+  activity: https://www.bim2twin.eu/ontology/Core#Activity
+  asPerformedOperation: https://www.bim2twin.eu/ontology/Core#Operation
+  asPerformedAction: https://www.bim2twin.eu/ontology/Core#Action
+  constructionContractor: https://www.bim2twin.eu/ontology/Core#constructionContractor
+  workpackage: https://www.bim2twin.eu/ontology/Core#WorkPackage
+  asPerformedConstruction: https://www.bim2twin.eu/ontology/Core#Construction
+  constructionSchedule: https://www.bim2twin.eu/ontology/CoreExtension#ConstructionSchedule
+
+  # Relation
+  hasElementType: https://www.bim2twin.eu/ontology/Core#hasElementType
+  hasGeometryStatusType: https://www.bim2twin.eu/ontology/Core#hasGeometryStatusType
+  intentStatusRelation: https://www.bim2twin.eu/ontology/Core#intentStatusRelation
+  hasDefectType: https://www.bim2twin.eu/ontology/CoreExtension#hasDefectType
+  defect_class_volumetric: https://www.bim2twin.eu/ontology/CoreExtension#VolumetricDefect
+  hasGeometricDefect: https://www.bim2twin.eu/ontology/CoreExtension#hasGeometricDefect
+  hasTarget: https://www.bim2twin.eu/ontology/Core#hasTarget
+  hasTask: https://www.bim2twin.eu/ontology/Core#hasTask
+  hasTaskType: https://www.bim2twin.eu/ontology/Core#hasTaskType
+  hasActivity: https://www.bim2twin.eu/ontology/Core#hasActivity
+  hasAction: https://www.bim2twin.eu/ontology/Core#hasAction
+  hasWorkPackage: https://www.bim2twin.eu/ontology/CoreExtension#hasWorkPackage
+  hasConstruction: https://www.bim2twin.eu/ontology/CoreExtension#hasConstruction
+  hasProductionMethodType: https://www.bim2twin.eu/ontology/Core#hasProductionMethodType
+
+  # Element type
+  Wall: https://www.bim2twin.eu/ontology/Core#Wall
+  Column: https://www.bim2twin.eu/ontology/Core#Column
+  Covering: https://www.bim2twin.eu/ontology/Core#Covering
+  BuildingElementProxy: https://www.bim2twin.eu/ontology/Core#BuildingElementProxy
+  CurtainWall: https://www.bim2twin.eu/ontology/Core#CurtainWall
+  Stair: https://www.bim2twin.eu/ontology/Core#Stair
+  RampFlight: https://www.bim2twin.eu/ontology/Core#RampFlight
+  Slab: https://www.bim2twin.eu/ontology/Core#Slab
+  Railing: https://www.bim2twin.eu/ontology/Core#Railing
+  Window: https://www.bim2twin.eu/ontology/Core#Window
+  Door: https://www.bim2twin.eu/ontology/Core#Door
+  Beam: https://www.bim2twin.eu/ontology/Core#Beam
+  Member: https://www.bim2twin.eu/ontology/Core#Member
+  Excavating: https://www.bim2twin.eu/ontology/Core#Excavating
+  InstallingDoor: https://www.bim2twin.eu/ontology/Core#InstallingDoor
+  InstallingPrefabricatedElement: https://www.bim2twin.eu/ontology/Core#InstallingPrefabricatedElement
+  InstallingWindow: https://www.bim2twin.eu/ontology/Core#InstallingWindow
+  LayingBricks: https://www.bim2twin.eu/ontology/Core#LayingBricks
+  Painting: https://www.bim2twin.eu/ontology/Core#Painting
+  PlacingFormwork: https://www.bim2twin.eu/ontology/Core#PlacingFormwork
+  PlacingRebar: https://www.bim2twin.eu/ontology/Core#PlacingRebar
+  Plastering: https://www.bim2twin.eu/ontology/Core#Plastering
+  PouringConcrete: https://www.bim2twin.eu/ontology/Core#PouringConcrete
+  RemovingFormwork: https://www.bim2twin.eu/ontology/Core#RemovingFormwork
+
+  # KPIs
+  kpiNumberOfDefectsPerWork: https://www.bim2twin.eu/ontology/kpi/NumberOfDefectsPerWork
+  kpiZeroDefectWork: https://www.bim2twin.eu/ontology/kpi/ZeroDefectWork
+  kpiValue: https://www.bim2twin.eu/ontology/kpi/kpiValue
+  kpiSampleQuantity: https://www.bim2twin.eu/ontology/kpi/sampleQuantity
+  kpiReferenceQuantity: https://www.bim2twin.eu/ontology/kpi/referenceQuantity
+  kpiIntervalStartDate: https://www.bim2twin.eu/ontology/kpi/intervalStartDate
+  kpiIntervalEndDate: https://www.bim2twin.eu/ontology/kpi/intervalEndDate
+  kpiHasTaskType: https://www.bim2twin.eu/ontology/kpi/hasTaskType

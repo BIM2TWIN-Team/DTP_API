@@ -401,5 +401,5 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/pycharm,visualstudiocode,vim,linux,windows,macos,python
 
-DTP_config.xml
+DTP_config.yaml
 thingin_token.txt
