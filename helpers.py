@@ -19,33 +19,6 @@ except ModuleNotFoundError:
     from DTP_config import DTPConfig
 
 
-class Tupperware(dict):
-    MARKER = object()
-
-    def __init__(self, value=None):
-        if value is None:
-            pass
-        elif isinstance(value, dict):
-            for key in value:
-                self.__setitem__(key, value[key])
-        else:
-            raise TypeError('expected dict')
-
-    def __setitem__(self, key, value):
-        if isinstance(value, dict) and not isinstance(value, Tupperware):
-            value = Tupperware(value)
-        super(Tupperware, self).__setitem__(key, value)
-
-    def __getitem__(self, key):
-        found = self.get(key, Tupperware.MARKER)
-        if found is Tupperware.MARKER:
-            found = Tupperware()
-            super(Tupperware, self).__setitem__(key, found)
-        return found
-
-    __setattr__, __getattr__ = __setitem__, __getitem__
-
-
 def get_element_type(DTP_CONFIG, element):
     """
     The function returns element type. Only type fields defined in XML are recognized.
