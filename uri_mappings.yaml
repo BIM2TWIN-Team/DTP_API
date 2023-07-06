@@ -71,6 +71,8 @@ ONTOLOGY_URIS:
   Door: https://www.bim2twin.eu/ontology/Core#Door
   Beam: https://www.bim2twin.eu/ontology/Core#Beam
   Member: https://www.bim2twin.eu/ontology/Core#Member
+
+  # Task type
   Excavating: https://www.bim2twin.eu/ontology/Core#Excavating
   InstallingDoor: https://www.bim2twin.eu/ontology/Core#InstallingDoor
   InstallingPrefabricatedElement: https://www.bim2twin.eu/ontology/Core#InstallingPrefabricatedElement
