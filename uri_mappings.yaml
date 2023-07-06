@@ -29,6 +29,7 @@ ONTOLOGY_URIS:
   lastUpdatedOn: https://www.bim2twin.eu/ontology/Core#lastUpdatedOn
   plannedStart: https://www.bim2twin.eu/ontology/Core#plannedStart
   plannedEnd: https://www.bim2twin.eu/ontology/Core#plannedEnd
+  defect_class_volumetric: https://www.bim2twin.eu/ontology/CoreExtension#VolumetricDefect
 
   # Class
   classElement: https://w3id.org/bot#Element
@@ -46,7 +47,6 @@ ONTOLOGY_URIS:
   hasGeometryStatusType: https://www.bim2twin.eu/ontology/Core#hasGeometryStatusType
   intentStatusRelation: https://www.bim2twin.eu/ontology/Core#intentStatusRelation
   hasDefectType: https://www.bim2twin.eu/ontology/CoreExtension#hasDefectType
-  defect_class_volumetric: https://www.bim2twin.eu/ontology/CoreExtension#VolumetricDefect
   hasGeometricDefect: https://www.bim2twin.eu/ontology/CoreExtension#hasGeometricDefect
   hasTarget: https://www.bim2twin.eu/ontology/Core#hasTarget
   hasTask: https://www.bim2twin.eu/ontology/Core#hasTask
