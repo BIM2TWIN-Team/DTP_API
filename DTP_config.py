@@ -60,11 +60,13 @@ class DTPConfig:
 
         return token
 
-    def __map_api_urls(self, uris):
-        for key, uri in uris.items():
+    def __map_api_urls(self, urls):
+        assert urls, "Empty API URLs!"
+        for key, uri in urls.items():
             self.api_uris[key.strip(' \t\n\r')] = uri.strip(' \t\n\r')
 
     def __map_ontology_uris(self, uris):
+        assert uris, "Empty ontology URIs!"
         for key, uri in uris.items():
             self.ontology_uris[key.strip(' \t\n\r')] = uri.strip(' \t\n\r')
 
@@ -105,12 +107,14 @@ class DTPConfig:
             self.__map_ontology_uris(uris)
 
     def get_api_url(self, api_type, idx=None):
+        assert api_type in self.api_uris.keys(), f"APU URL {api_type} not found!"
         if len(idx.strip(' \t\n\r')) == 0:
             return self.api_uris[api_type]
         else:
             return self.api_uris[api_type].replace('_ID_', idx)
 
     def get_ontology_uri(self, ontology_type):
+        assert ontology_type in self.ontology_uris.keys(), f"Ontology {ontology_type} not found!"
         return self.ontology_uris[ontology_type]
 
     def get_token(self):
