@@ -95,7 +95,7 @@ class DTPConfig:
     def __check_token_expired(self):
         token_path = os.path.join(os.path.dirname(__file__), 'thingin_token.txt')
         if os.path.isfile(token_path):
-            modified_time = datetime.fromtimestamp(os.path.getctime(token_path))
+            modified_time = datetime.fromtimestamp(os.path.getmtime(token_path))
             return True if (datetime.now() - modified_time) > timedelta(hours=24) else False
         else:
             return True
