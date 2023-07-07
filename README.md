@@ -87,9 +87,9 @@ Content-Length: 170
 10-Oct-22 13:49:35 : DTP_API - END SESSION
 ```
 
-## Control via XML configuration file
+## Control via YAML configuration file
 
-XML configuration file is used to generalize the integration and push certain information from the code to the
+Configuration file is used to generalize the integration and push certain information from the code to the
 external configuration file to make the implementation general and easy to maintain.
 
 ### DTP configuration file
