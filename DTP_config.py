@@ -5,8 +5,12 @@
 #  Authors: Kacper Pluta <kacper.pluta@inria.fr>, Alwyn Mathew <am3156@cam.ac.uk>
 #  This file cannot be used without a written permission from the author(s).
 
+import getpass
 import os
+from base64 import b64encode
+from datetime import datetime, timedelta
 
+import requests
 import validators
 import yaml
 
@@ -24,7 +28,7 @@ class DTPConfig:
     api_uris : dictionary
         a map of the API uris
     ontology_uris : dictionary
-        a map of the ontology uris        
+        a map of the ontology uris
 
     Methods
     -------
@@ -42,13 +46,30 @@ class DTPConfig:
         returns the DTP domain
     """
 
-    def __read_dev_token(self, input_dev_token_file):
-        if not os.path.exists(input_dev_token_file):
-            raise Exception("Sorry, the dev token file does not exist.")
+    def __get_dev_thingin_token(self):
+        print("Authentication...")
+        auth_url = 'https://api.thinginthefuture.bim2twin.eu/auth'
+        user_id = input("Email: ")
+        # known issue: some terminals are not capable of echo-free input
+        # warning will be raised if password cant be hidden in terminal
+        password = getpass.getpass("Password: ")
+        b64_val = b64encode(f"{user_id}:{password}".encode())
 
-        token = ''
+        payload = {}
+        headers = {
+            'Authorization': f"Basic {b64_val.decode()}"
+        }
+        response = requests.request("GET", auth_url, headers=headers, data=payload)
+        if response.status_code == 200:
+            with open(os.path.join(os.path.dirname(__file__), 'thingin_token.txt'), 'w') as f:
+                f.write(response.text.strip())
+            return response.text.strip()
+        else:
+            raise Exception("Authentication failed!")
 
-        f = open(input_dev_token_file, "r")
+    def __read_token_file(self, token_path):
+        token = ""
+        f = open(token_path, "r")
         lines = f.readlines()
 
         for line in lines:
@@ -56,14 +77,29 @@ class DTPConfig:
         f.close()
 
         if len(token) == 0:
-            raise Exception("Sorry, the dev token file seems to be empty.")
+            print("Sorry, the dev token file seems to be empty.")
+            token = self.__get_dev_thingin_token()
 
         return token
 
-    def __map_api_urls(self, urls):
-        assert urls, "Empty API URLs!"
-        for key, uri in urls.items():
-            self.api_uris[key.strip(' \t\n\r')] = uri.strip(' \t\n\r')
+    def __check_token_expired(self):
+        token_path = os.path.join(os.path.dirname(__file__), 'thingin_token.txt')
+        if os.path.isfile(token_path):
+            modified_time = datetime.fromtimestamp(os.path.getctime(token_path))
+            return True if (datetime.now() - modified_time) > timedelta(hours=24) else False
+        else:
+            return True
+
+    def __get_dev_token(self):
+        if self.__check_token_expired():
+            return self.__get_dev_thingin_token()
+        else:
+            token_path = os.path.join(os.path.dirname(__file__), 'thingin_token.txt')
+            return self.__read_token_file(token_path)
+
+    def __map_api_urls(self, uris):
+        for uri in uris:
+            self.api_uris[uri.attrib['function'].strip(' \t\n\r')] = uri.text.strip(' \t\n\r')
 
     def __map_ontology_uris(self, uris):
         assert uris, "Empty ontology URIs!"
@@ -74,8 +110,7 @@ class DTPConfig:
         dtp_configs = yaml.safe_load(open(config_path))
         dtp_maps = yaml.safe_load(open("uri_mappings.yaml"))
 
-        token_path = dtp_configs["DEV_TOKEN"].strip(' \t\n\r')
-        self.token = self.__read_dev_token(token_path)
+        self.token = self.__get_dev_token()
 
         self.dtp_domain = dtp_configs["DTP_DOMAIN"].strip(' \t\n\r')
         if not validators.url(self.dtp_domain):

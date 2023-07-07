@@ -1,4 +1,3 @@
-DEV_TOKEN: /path/to/token/file
 DTP_DOMAIN: http://bim2twin.eu/domain_x/
 KPI_DOMAIN: http://bim2twin.eu/domain_x/kpi/
 LOG_DIR: /path/to/log/dir
