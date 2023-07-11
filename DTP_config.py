@@ -56,7 +56,7 @@ class DTPConfig:
         returns dictionary, str, object type maps
     """
 
-    def __get_dev_thingin_token(self):
+    def __get_dev_thingin_token(self, token_path):
         print("Authentication...")
         auth_url = 'https://api.thinginthefuture.bim2twin.eu/auth'
         user_id = input("Email: ")
@@ -71,7 +71,7 @@ class DTPConfig:
         }
         response = requests.request("GET", auth_url, headers=headers, data=payload)
         if response.status_code == 200:
-            with open(os.path.join(os.path.dirname(__file__), 'thingin_token.txt'), 'w') as f:
+            with open(token_path, 'w') as f:
                 f.write(response.text.strip())
             return response.text.strip()
         else:
@@ -88,12 +88,11 @@ class DTPConfig:
 
         if len(token) == 0:
             print("Sorry, the dev token file seems to be empty.")
-            token = self.__get_dev_thingin_token()
+            token = self.__get_dev_thingin_token(token_path)
 
         return token
 
-    def __check_token_expired(self):
-        token_path = os.path.join(os.path.dirname(__file__), 'thingin_token.txt')
+    def __check_token_expired(self, token_path):
         if os.path.isfile(token_path):
             modified_time = datetime.fromtimestamp(os.path.getmtime(token_path))
             return True if (datetime.now() - modified_time) > timedelta(hours=24) else False
@@ -101,10 +100,10 @@ class DTPConfig:
             return True
 
     def __get_dev_token(self):
-        if self.__check_token_expired():
-            return self.__get_dev_thingin_token()
+        token_path = os.path.join(os.path.dirname(__file__), 'thingin_token.txt')
+        if self.__check_token_expired(token_path):
+            return self.__get_dev_thingin_token(token_path)
         else:
-            token_path = os.path.join(os.path.dirname(__file__), 'thingin_token.txt')
             return self.__read_token_file(token_path)
 
     def __map_api_urls(self, uris):
