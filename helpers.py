@@ -208,11 +208,11 @@ def create_logger_global(log_dir):
     return create_logger(log_filename, formatter, logging.DEBUG)
 
 
-if os.path.exists('../DTP_config.xml'):
-    dtp_config = DTPConfig('../DTP_config.xml')
-elif os.path.exists(os.path.join(os.path.dirname(__file__), 'DTP_config.xml')):
-    dtp_config = DTPConfig(os.path.join(os.path.dirname(__file__), 'DTP_config.xml'))
+if os.path.exists('../DTP_config.yaml'):
+    dtp_config = DTPConfig('../DTP_config.yaml')
+elif os.path.exists(os.path.join(os.path.dirname(__file__), 'DTP_config.yaml')):
+    dtp_config = DTPConfig(os.path.join(os.path.dirname(__file__), 'DTP_config.yaml'))
 else:
-    raise Exception("DTP_config.xml not found!")
+    raise Exception("DTP_config.yaml not found!")
 
 globals()['logger_global'] = create_logger_global(dtp_config.get_log_path())

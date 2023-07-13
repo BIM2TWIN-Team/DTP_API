@@ -23,7 +23,7 @@ def parse_args():
     """
     parser = argparse.ArgumentParser(
         description='Counts task nodes connected to a node identified by activity_node_iri')
-    parser.add_argument('--xml_path', '-x', type=str, help='path to config xml file', default='../DTP_config.xml')
+    parser.add_argument('--config_path', '-x', type=str, help='path to config file', default='../DTP_config.yaml')
     parser.add_argument('--simulation', '-s', default=False, action='store_true')
 
     return parser.parse_args()
@@ -31,7 +31,7 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args()
-    dtp_config = DTPConfig(args.xml_path)
+    dtp_config = DTPConfig(args.config_path)
     dtp_api = DTPApi(dtp_config, simulation_mode=args.simulation)
     response = dtp_api.activity_count_connected_task_nodes("http://bim2twin.eu/mislata_wp3/activity91217940_2")
     print('Response:\n', response)

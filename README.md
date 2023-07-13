@@ -25,8 +25,9 @@ Once the conda environment is set up and activated, we are ready to run the code
 
 ## Authentication
 
-Authentication token from [Thing'in](https://thinginthefuture.bim2twin.eu) should be placed in a `.txt` file without
-string `Bearer` in the token and path to this file should be given in the `DTP_config.xml`.
+DTP_API will automatically get the authentication token from [Thing'in](https://thinginthefuture.bim2twin.eu). It will
+prompt you to enter your Thing'in credentials. The Thing'in token expires after 24hrs; thus, you only will be asked to
+enter your credentials again when the current token is expired.
 
 ## Logged information
 
@@ -34,7 +35,7 @@ Currently, the program is using two logs: the general log stored in `global.log`
 used or storing information about database changing queries. The second log can be used to revert changes done on the
 database. In order to revert to the last session, it is necessary to call the program with the argument `-r` followed by
 the path to the file. In principle, the database can also be restored from the general log file, but this option has not
-been sufficiently tested. `db_session_x.log` will be stored in `sessions` folder in log path (`LOG_DIR` in 
+been sufficiently tested. `db_session_x.log` will be stored in `sessions` folder in log path (`LOG_DIR` in
 `DTP_config.xml`).
 
 **Note that, the general log file `global.log`, contains also raw HTTP requests, together with the authentication
@@ -86,27 +87,18 @@ Content-Length: 170
 10-Oct-22 13:49:35 : DTP_API - END SESSION
 ```
 
-## Control via XML configuration file
+## Control via YAML configuration file
 
-XML configuration file is used to generalize the integration and push certain information from the code to the
+Configuration file is used to generalize the integration and push certain information from the code to the
 external configuration file to make the implementation general and easy to maintain.
 
-### DTP configuration tags:
+### DTP configuration file
 
-* `DTP_config`: the root of the XML configuration,
-* `NAME`: name given to the configuration, for example, the name of the platform,
-* `VERSION` : version of the configuration file,
-* `DEV_TOKEN` : the path to the file, which contains the developer token needed for the authentication,
-* `DTP_DOMAIN` : the domain used for the session,
-* `KPI_DOMAIN` : the KPI domain used for the session,
-* `API_URIS` : a list of API uri calls that are then mapped by the program,
-    * `URI` :  nested tag representing an API uri, which has the following attributes,
-        * `function` : the name used to map the API URI to its function,
-        * `type` : for now only `xs:anyURI`,
-* `ONTOLOGY_URIS` : a list of ontology uris mapped by the program
-    * `URI` :  nested tag representing an ontology uri, which has the following attributes,
-        * `function` : the name used to map the ontology URI to its function,
-        * `type` : for now only `xs:anyURI`,
+`DTP_config.yaml` is defined as DTP configuration file and has following:
+
+* `DTP_DOMAIN` : the domain used for the session
+* `KPI_DOMAIN` : the KPI domain used for the session
+* `LOG_DIR` : Log directory
 
 ## Code structure
 
@@ -119,14 +111,15 @@ external configuration file to make the implementation general and easy to maint
 │   ├── link_DTP_API.py                     # Mixin link API class
 │   ├── revert_DTP_API.py                   # Mixin revert API class
 │   └── send_DTP_API.py                     # Mixin send API class
-├── DTP_config.py                           # XML parser class
-├── DTP_config.xml                          # DTP configuration file
+├── DTP_config.py                           # Configuration parser class
+├── DTP_config.yaml                         # DTP configuration file
+├── uri_mappings.yaml                       # Onotology and Thing'in API mappings
 ├── examples                                # API examples
 ├── helpers.py                              # shared functions
 ├── multiprocessing_logging.py              # enables multiprocessing
 ├── README.md
 ├── requirements.txt                        # requirments for DTP API
-└── thingin_token.txt                       # store thing'in token here
+└── thingin_token.txt                       # store Thing'in token here
 
 ```
 
@@ -150,29 +143,29 @@ demonstration, session logger will be only used in `create_DTP_API`, `link_DTP_A
 Count task nodes connected to a node identified by `activity_node_iri`
 
 ```shell
-python3 count_activity_tasks.py --xml_path ../DTP_config.xml
+python3 count_activity_tasks.py --config_path ../DTP_config.yaml
 ```
 
 Fetch operation nodes connected to a node identified by `constr_node_iri`
 
 ```shell
-python3 fetch_construction_operation.py --xml_path ../DTP_config.xml
+python3 fetch_construction_operation.py --config_path ../DTP_config.yaml
 ```
 
 Fetch all activity node in the graph
 
 ```shell
-python3 fetch_all_activity.py --xml_path ../DTP_config.xml
+python3 fetch_all_activity.py --config_path ../DTP_config.yaml
 ```
 
 Create as-built from as-designed node
 
 ```shell
-python3 asdesigned_to_asbuilt.py --xml_path ../DTP_config.xml
+python3 asdesigned_to_asbuilt.py --config_path ../DTP_config.yaml
 ```
 
 Revert a session with log file
 
 ```shell
-python3 revert_session.py --xml_path ../DTP_config.xml --revert /path/to/sessions/db_session-dd-tt.log
+python3 revert_session.py --config_path ../DTP_config.yaml --revert /path/to/sessions/db_session-dd-tt.log
 ```
