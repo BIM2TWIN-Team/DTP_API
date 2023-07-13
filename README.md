@@ -96,7 +96,6 @@ external configuration file to make the implementation general and easy to maint
 
 `DTP_config.yaml` is defined as DTP configuration file and has following:
 
-* `DEV_TOKEN` : the path to the file, which contains the developer token needed for the authentication
 * `DTP_DOMAIN` : the domain used for the session
 * `KPI_DOMAIN` : the KPI domain used for the session
 * `LOG_DIR` : Log directory
