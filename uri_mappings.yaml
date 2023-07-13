@@ -30,6 +30,7 @@ ONTOLOGY_URIS:
   plannedStart: https://www.bim2twin.eu/ontology/Core#plannedStart
   plannedEnd: https://www.bim2twin.eu/ontology/Core#plannedEnd
   defect_class_volumetric: https://www.bim2twin.eu/ontology/CoreExtension#VolumetricDefect
+  activityName: http://iot.linkeddata.es/def/wot#name
 
   # Class
   classElement: https://w3id.org/bot#Element
