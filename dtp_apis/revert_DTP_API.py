@@ -196,16 +196,16 @@ class RevertAPI:
                 return False
         return True
 
-    def unlink_intent_status(self, asperf_iri, asplannned_iri):
+    def unlink_intent_status(self, asplannned_iri, asperf_iri):
         """
         Unlink intent status from a node
 
         Parameters
         ----------
-        asperf_iri: str, obligatory
-            an iri of an as-performed node
         asplannned_iri: str, obligatory
             an iri of an as-planned node
+        asperf_iri: str, obligatory
+            an iri of an as-performed node
 
         Returns
         -------
@@ -214,11 +214,11 @@ class RevertAPI:
         """
         payload = json.dumps([{
             "_domain": self.DTP_CONFIG.get_domain(),
-            "_iri": asperf_iri,
+            "_iri": asplannned_iri,
             "_outE": [
                 {
                     "_label": self.DTP_CONFIG.get_ontology_uri('intentStatusRelation'),
-                    "_targetIRI": asplannned_iri
+                    "_targetIRI": asperf_iri
                 }
             ]
         }])
@@ -226,7 +226,7 @@ class RevertAPI:
         if not self.simulation_mode:
             if response.ok:
                 logger_global.info(f"Removed link {self.DTP_CONFIG.get_ontology_uri('intentStatusRelation')} from "
-                                   f"{asperf_iri} to {asplannned_iri}")
+                                   f"{asplannned_iri} to {asperf_iri}")
                 return True
             else:
                 logger_global.error("Unlink nodes failed. Response code: " + str(response.status_code))

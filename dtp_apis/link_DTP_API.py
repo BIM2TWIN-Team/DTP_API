@@ -251,16 +251,16 @@ class LinkAPI:
                 return False
         return True
 
-    def link_node_asperf_to_asplanned(self, asperf_iri, asplannned_iri):
+    def link_node_intent_to_status(self, asplannned_iri, asperf_iri):
         """
-        The method links an as-performed to as-planned node
+        The method links an as-planned to as-performed node with intent status relation
 
         Parameters
         ----------
-        asperf_iri : str, obligatory
-            a valid IRI of an as-performed node
         asplannned_iri : str, obligatory
             a valid IRI of an as-planned node
+        asperf_iri : str, obligatory
+            a valid IRI of an as-performed node
 
         Returns
         ------
@@ -282,7 +282,7 @@ class LinkAPI:
             if response.ok:
                 if self.session_logger is not None:
                     self.session_logger.info(
-                        "DTP_API - NEW_LINK_INTENT_STATUS: " + asperf_iri + ', ' + asplannned_iri)
+                        "DTP_API - NEW_LINK_INTENT_STATUS: " + asplannned_iri + ', ' + asperf_iri)
                 return True
             else:
                 logger_global.error("Linking nodes failed. Response code: " + str(response.status_code))

@@ -314,8 +314,8 @@ class DTPApi(FetchAPI, CountAPI, CreateAPI, LinkAPI, RevertAPI, SendAPI, UpdateA
                     self.unlink_element_type(node_iri, element_type_iri)
                     counter += 1
                 elif self.log_markers['link_intent_status'] in line:
-                    asperf_iri, asplannned_iri = get_info_from_log(line, self.log_markers['link_intent_status'])
-                    self.unlink_intent_status(asperf_iri, asplannned_iri)
+                    asplannned_iri, asperf_iri = get_info_from_log(line, self.log_markers['link_intent_status'])
+                    self.unlink_intent_status(asplannned_iri, asperf_iri)
                     counter += 1
                 else:
                     try:
