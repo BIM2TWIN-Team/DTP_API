@@ -2,7 +2,6 @@
 <DTP_config>
     <NAME>ThingIn</NAME>
     <VERSION>1.5</VERSION>
-    <DEV_TOKEN type="xs:anyURI">/path/to/token/file</DEV_TOKEN>
     <DTP_DOMAIN type="xs:anyURI">http://bim2twin.eu/domain_x/</DTP_DOMAIN>
     <KPI_DOMAIN type="xs:anyURI">http://bim2twin.eu/domain_x/kpi/</KPI_DOMAIN>
     <LOG_DIR type="xs:anyURI">/path/to/log/dir</LOG_DIR>
