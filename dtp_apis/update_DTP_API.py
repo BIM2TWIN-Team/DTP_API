@@ -355,7 +355,7 @@ class UpdateAPI:
             True if a blob has been node has been updated and False otherwise
         """
         if not is_revert_session:
-            assert previous_field_value, 'previous_field_value needed for logging'
+            assert previous_field_value is not None, 'previous_field_value needed for logging'
         payload = json.dumps([{
             "_domain": self.DTP_CONFIG.get_domain(),
             "_iri": node_iri,
