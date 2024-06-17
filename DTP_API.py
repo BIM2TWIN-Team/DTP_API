@@ -116,6 +116,7 @@ class DTPApi(FetchAPI, CountAPI, CreateAPI, LinkAPI, RevertAPI, SendAPI, UpdateA
                              'link_element_type': 'NEW_LINK_ELEMENT_ELEMENT_TYPE',
                              'link_constr_op': 'NEW_LINK_CONSTR_OPERATION',
                              'link_op_action': 'NEW_LINK_OPERATION_ACTION',
+                             'link_action_asbuilt': 'NEW_LINK_ACTION_ASBUILT',
                              'link_task_type': 'NEW_LINK_NODE_TASK_TYPE'}
 
         try:
@@ -132,8 +133,7 @@ class DTPApi(FetchAPI, CountAPI, CreateAPI, LinkAPI, RevertAPI, SendAPI, UpdateA
             os.makedirs(self.node_log_dir)
         session_log_path = os.path.join(session_log_dir, f"db_session-{time.strftime('%Y%m%d-%H%M%S')}.log")
         self.init_logger(session_log_path)
-        
-        
+
     def set_simulation_mode(self, flag):
         """
         Method used for changing the simulation mode between on (true) and off (false).
@@ -378,6 +378,10 @@ class DTPApi(FetchAPI, CountAPI, CreateAPI, LinkAPI, RevertAPI, SendAPI, UpdateA
                 elif self.log_markers['link_op_action'] in line:
                     oper_node_iri, list_of_action_iri = get_info_from_log(line, self.log_markers['link_op_action'])
                     self.unlink_operation_action(oper_node_iri, list_of_action_iri)
+                elif self.log_markers['link_action_asbuilt'] in line:
+                    action_node_iri, target_asbuilt_iri = get_info_from_log(line,
+                                                                            self.log_markers['link_action_asbuilt'])
+                    self.unlink_action_asbuilt(action_node_iri, target_asbuilt_iri)
                 elif self.log_markers['link_task_type'] in line:
                     node_iri, task_type_iri = get_info_from_log(line, self.log_markers['link_task_type'])
                     self.unlink_task_type(node_iri, task_type_iri)

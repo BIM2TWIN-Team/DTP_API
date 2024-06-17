@@ -37,7 +37,7 @@ except ModuleNotFoundError:
 
 def get_element_type(DTP_CONFIG, element):
     """
-    The function returns element type. Only type fields defined in XML are recognized.
+    The function returns element type.
 
     Parameters
     ----------
@@ -50,15 +50,10 @@ def get_element_type(DTP_CONFIG, element):
         element type
     """
 
-    # ifc classes and old hasElementType
-    for key in DTP_CONFIG.get_object_type_classes():
-        if key in element.keys():
-            return element[key]
-
-    # if not found then search for the correctly defined type
-    for edge in element['_outE']:
-        if edge['_label'] == DTP_CONFIG.get_ontology_uri('hasElementType'):
-            return edge['_targetIRI']
+    # search over classes with exception to the base element type
+    for eclass in element['_classes']:
+        if eclass != DTP_CONFIG.get_ontology_uri('classElement'):
+            return eclass
 
     raise Exception("Element is of a type class not recognized by the system.")
 
@@ -137,13 +132,15 @@ def create_as_performed_iri(as_planned_iri):
     str
         Returns as-performed iri
     """
-    base_uri, as_planned_node_id = as_planned_iri.rsplit('/', 1)
-    asplanned_substr = [k for k in iri_map.keys() if k in as_planned_node_id]
+    base_uri, node_id = as_planned_iri.rsplit('/', 1)
+    asplanned_substr = [k for k in iri_map.keys() if k in node_id]
     if len(asplanned_substr) == 1:
-        as_perf_node_id = as_planned_node_id.replace(asplanned_substr[0], iri_map[asplanned_substr[0]])
+        as_perf_node_id = node_id.replace(asplanned_substr[0], iri_map[asplanned_substr[0]])
         return f"{base_uri}/{as_perf_node_id}"
-    else:
+    elif len(asplanned_substr) > 1:
         raise Exception(f"{as_planned_iri} cannot be converted to as-performed iri")
+    else:
+        return f"{base_uri}/asbuilt_{node_id}"
 
 
 def read_ply_collection_date(ply_path):

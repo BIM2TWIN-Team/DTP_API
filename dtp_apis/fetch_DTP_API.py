@@ -75,6 +75,8 @@ class FetchAPI:
         returns dictionary created from JSON
     fetch_action_connected_asbuilt_nodes(action_node_iri, url)
         returns dictionary created from JSON
+    fetch_subgraph(url)
+        returns subgraph Activity -> Element (as-designed) -> Element (as-built)
     fetch_blobs_for_node(node_uuid)
         returns dictionary created from JSON
     download_blob_as_text(blob_uuid)
@@ -510,6 +512,37 @@ class FetchAPI:
             }
             ],
             "return": "element"
+        })
+
+        req_url = self.DTP_CONFIG.get_api_url('get_find_elements') if not url else url
+        return self.post_general_request(payload, req_url).json()
+
+    def fetch_workpackage_of_activity_node(self, activity_node_iri, url=None):
+        """
+        The method fetches workpackage node corresponding to an activity node
+
+        Parameters
+        ----------
+        activity_node_iri : str, obligatory
+            a valid IRI of a node.
+        url : str, optional
+            used to fetch a next page
+
+        Returns
+        ------
+        dictionary
+            JSON mapped to a dictionary. The data contain workpackage node.
+        """
+
+        payload = json.dumps({
+            "query": [
+                {
+                    "$domain": self.DTP_CONFIG.get_domain(),
+                    "$iri": activity_node_iri,
+                    "<-" + self.DTP_CONFIG.get_ontology_uri('hasActivity'): "wp"
+                }
+            ],
+            "return": "wp"
         })
 
         req_url = self.DTP_CONFIG.get_api_url('get_find_elements') if not url else url
@@ -1108,10 +1141,9 @@ class FetchAPI:
         req_url = self.DTP_CONFIG.get_api_url('get_find_elements') if not url else url
         return self.post_general_request(payload, req_url).json()
 
-
-    def fetch_workpkg_connected_asbuilt_nodes(self, workpkg_node_iri, url=None):
+    def fetch_workpkg_connected_asdesigned_nodes(self, workpkg_node_iri, url=None):
         """
-        The method fetches as-built nodes connected to a node identified by workpkg_node_iri
+        The method fetches as-designed nodes connected to a node identified by workpkg_node_iri
 
         Parameters
         ----------
@@ -1123,7 +1155,7 @@ class FetchAPI:
         Returns
         ------
         dictionary
-            JSON mapped to a dictionary. The data contain asbuilt nodes connected to workpkg_node_iri.
+            JSON mapped to a dictionary. The data contain as-designed nodes connected to workpkg_node_iri.
         """
 
         payload = json.dumps({
@@ -1138,32 +1170,32 @@ class FetchAPI:
                     "$alias": "activity"
                 }
             },
-            {
-                "$alias": "activity",
-                "$domain": self.DTP_CONFIG.get_domain(),
-                "$classes": {
-                    "$contains": self.DTP_CONFIG.get_ontology_uri('activity')
+                {
+                    "$alias": "activity",
+                    "$domain": self.DTP_CONFIG.get_domain(),
+                    "$classes": {
+                        "$contains": self.DTP_CONFIG.get_ontology_uri('activity')
+                    },
+                    "->" + self.DTP_CONFIG.get_ontology_uri('hasTask'): {
+                        "$alias": "task"
+                    }
                 },
-                "->" + self.DTP_CONFIG.get_ontology_uri('hasTask'): {
-                    "$alias": "task"
+                {
+                    "$alias": "task",
+                    "$domain": self.DTP_CONFIG.get_domain(),
+                    "->" + self.DTP_CONFIG.get_ontology_uri('hasTarget'): {
+                        "$alias": "asdesigned"
+                    }
+                },
+                {
+                    "$alias": "asdesigned",
+                    "$domain": self.DTP_CONFIG.get_domain(),
+                    "$classes": {
+                        "$contains": self.DTP_CONFIG.get_ontology_uri('classElement'),
+                        "$inheritance": True
+                    },
+                    self.DTP_CONFIG.get_ontology_uri('isAsDesigned'): True
                 }
-            },
-            {
-                "$alias": "task",
-                "$domain": self.DTP_CONFIG.get_domain(),
-                "->" + self.DTP_CONFIG.get_ontology_uri('hasTarget'): {
-                    "$alias": "asdesigned"
-                }
-            },
-            {
-                "$alias": "asdesigned",
-                "$domain": self.DTP_CONFIG.get_domain(),
-                "$classes": {
-                    "$contains": self.DTP_CONFIG.get_ontology_uri('classElement'),
-                    "$inheritance": True
-            },
-                self.DTP_CONFIG.get_ontology_uri('isAsDesigned'): True
-            }
             ],
             "return": "asdesigned"
         })
@@ -1171,6 +1203,140 @@ class FetchAPI:
         req_url = self.DTP_CONFIG.get_api_url('get_find_elements') if not url else url
         return self.post_general_request(payload, req_url).json()
 
+    def fetch_workpkg_required_process(self, workpkg_node_iri, url=None):
+        """
+        The method fetches work package nodes connected to a given work package node identified by workpkg_node_iri
+        with requiresProcess relation
+
+        workpackage --(hasPrecondition)--> Precondition --(requiresProcess)--> workpackage
+
+        Parameters
+        ----------
+        workpkg_node_iri : str, obligatory
+            a valid IRI of a node.
+        url : str, optional
+            used to fetch a next page
+
+        Returns
+        ------
+        dictionary
+            JSON mapped to a dictionary. The data contain work package nodes connected to workpkg_node_iri.
+        """
+
+        payload = json.dumps({
+            "query": [{
+                "$iri": workpkg_node_iri,
+                "$domain": self.DTP_CONFIG.get_domain(),
+                "->" + self.DTP_CONFIG.get_ontology_uri('hasPrecondition'): {
+                    "$alias": "Precondition"
+                }
+            },
+                {
+                    "$alias": "Precondition",
+                    "->" + self.DTP_CONFIG.get_ontology_uri('requiresProcess'): {
+                        "$alias": "wp"
+                    }
+                },
+                {
+                    "$alias": "wp",
+                    "$classes": {
+                        "$contains": self.DTP_CONFIG.get_ontology_uri('workpackage')
+                    }
+                }
+            ],
+            "return": "wp"
+        })
+
+        req_url = self.DTP_CONFIG.get_api_url('get_find_elements') if not url else url
+        return self.post_general_request(payload, req_url).json()
+
+    def fetch_construction_required_process(self, workpkg_node_iri, url=None):
+        """
+        The method fetches construction nodes connected to a work package that has inverse requiresProcess relation to
+        a work package identified by workpkg_node_iri
+
+        workpackage <--(requiresProcess)-- Precondition <--(requiresProcess)-- workpackage --(requiresProcess)--> construction
+
+        Parameters
+        ----------
+        workpkg_node_iri : str, obligatory
+            a valid IRI of a node.
+        url : str, optional
+            used to fetch a next page
+
+        Returns
+        ------
+        dictionary
+            JSON mapped to a dictionary. The construction node(s).
+        """
+
+        payload = json.dumps({
+            "query": [{
+                "$iri": workpkg_node_iri,
+                "$domain": self.DTP_CONFIG.get_domain(),
+                "<-" + self.DTP_CONFIG.get_ontology_uri('requiresProcess'): {
+                    "$alias": "requiresProcess"
+                }
+            },
+                {
+                    "$alias": "requiresProcess",
+                    "<-" + self.DTP_CONFIG.get_ontology_uri('hasPrecondition'): {
+                        "$alias": "wp"
+                    }
+                },
+                {
+                    "$alias": "wp",
+                    "$classes": {
+                        "$contains": self.DTP_CONFIG.get_ontology_uri('workpackage')
+                    },
+                    "<-" + self.DTP_CONFIG.get_ontology_uri('intentStatusRelation'): {
+                        "$alias": "con"
+                    }
+                }
+            ],
+            "return": "con"
+        })
+
+        req_url = self.DTP_CONFIG.get_api_url('get_find_elements') if not url else url
+        return self.post_general_request(payload, req_url).json()
+
+    def fetch_subgraph(self, url=None):
+        """
+        Fetch subgraph Activity -> Element (as-designed) -> Element (as-built) with SDIF
+
+        Parameters
+        ----------
+        url : str, optional
+            SDIF url
+
+        Returns
+        -------
+        dictionary
+            JSON mapped to a dictionary. The data contain requested subgraph nodes as follows:
+            .
+            └── response
+                └── value
+                    ├── dict
+                    .
+                    └── dict
+                        ├── activity
+                        ├── as-designed element
+                        └── as-performed element
+
+        """
+
+        payload = json.dumps({
+            "async": False,
+            "params": [
+                {
+                    "name": "domain",
+                    "value": self.DTP_CONFIG.get_domain()
+                }
+            ]
+        })
+
+        req_url = self.DTP_CONFIG.get_api_url('fetch_subgraph_sdif') if not url else url
+        return self.post_general_request(payload, req_url).json()
 
     def fetch_blobs_for_node(self, node_uuid):
         """
