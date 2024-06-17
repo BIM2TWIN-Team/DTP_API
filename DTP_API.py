@@ -492,5 +492,5 @@ if __name__ == "__main__":
     args = parse_args()
     dtp_config = DTPConfig(args.xml_path)
     dtp_api = DTPApi(dtp_config, simulation_mode=args.simulation)
-    response = dtp_api.activity_count_connected_task_nodes("http://bim2twin.eu/mislata_wp3/activity91217940_2")
+    response = dtp_api.fetch_subgraph()
     print('Response:\n', response)

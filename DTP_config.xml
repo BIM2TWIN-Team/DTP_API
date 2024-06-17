@@ -26,6 +26,9 @@
         <URL function="update_unset" type="xs:anyURL">
             https://api.thinginthefuture.bim2twin.eu/batch/avatars/update/unset
         </URL>
+        <URL function="fetch_subgraph_sdif" type="xs:anyURL">
+            https://api.thinginthefuture.bim2twin.eu/sdifs/069252ef-b420-4522-b798-a9c57502a601/exec
+        </URL>
     </API_URLS>
     <ONTOLOGY_URIS>
         <URI function="isAsDesigned" type="xs:anyURI">https://www.bim2twin.eu/ontology/Core#isAsDesigned</URI>
@@ -110,7 +113,9 @@
         <URI function="Member" type="xs:anyURI">https://www.bim2twin.eu/ontology/Core#Member</URI>
         <URI function="Excavating" type="xs:anyURI">https://www.bim2twin.eu/ontology/Core#Excavating</URI>
         <URI function="InstallingDoor" type="xs:anyURI">https://www.bim2twin.eu/ontology/Core#InstallingDoor</URI>
-        <URI function="InstallingPrefabricatedElement" type="xs:anyURI">https://www.bim2twin.eu/ontology/Core#InstallingPrefabricatedElement</URI>
+        <URI function="InstallingPrefabricatedElement" type="xs:anyURI">
+            https://www.bim2twin.eu/ontology/Core#InstallingPrefabricatedElement
+        </URI>
         <URI function="InstallingWindow" type="xs:anyURI">https://www.bim2twin.eu/ontology/Core#InstallingWindow</URI>
         <URI function="LayingBricks" type="xs:anyURI">https://www.bim2twin.eu/ontology/Core#LayingBricks</URI>
         <URI function="Painting" type="xs:anyURI">https://www.bim2twin.eu/ontology/Core#Painting</URI>
