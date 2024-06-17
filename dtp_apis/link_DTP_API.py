@@ -64,7 +64,7 @@ class LinkAPI:
             "ignore_conflicts": False
         })
 
-        response = self.put_guarded_request(payload=payload, url=self.DTP_CONFIG.get_api_url('update_set'))
+        response = self.post_guarded_request(payload=payload, url=self.DTP_CONFIG.get_api_url('link_blob'))
         if not self.simulation_mode:
             if response.ok:
                 if self.session_logger is not None:
@@ -168,9 +168,11 @@ class LinkAPI:
             True if the operation has been linked with actions, and False otherwise
         """
         assert len(list_of_action_iri), "No action nodes listed"
+        node_info = self.fetch_node_with_iri(oper_node_iri)
+        already_existing_edges = node_info['items'][0]['_outE']
 
         # create out edges list of dictionaries
-        out_edge_to_actions = []
+        out_edge_to_actions = [*already_existing_edges]
         for action_iri in list_of_action_iri:
             out_edge_dict = {
                 "_label": self.DTP_CONFIG.get_ontology_uri('hasAction'),
@@ -181,17 +183,16 @@ class LinkAPI:
         payload = json.dumps([{
             "_domain": self.DTP_CONFIG.get_domain(),
             "_iri": oper_node_iri,
-            "_outE": [
-                *out_edge_to_actions
-            ]
+            "_outE": out_edge_to_actions
         }])
 
+        old_out_edges = [x['_targetIRI'] for x in already_existing_edges]
         response = self.put_guarded_request(payload=payload, url=self.DTP_CONFIG.get_api_url('update_set'))
         if not self.simulation_mode:
             if response.ok:
                 if self.session_logger is not None:
                     self.session_logger.info(
-                        f"DTP_API - NEW_LINK_OPERATION_ACTION: {oper_node_iri}, {list_of_action_iri}")
+                        f"DTP_API - NEW_LINK_OPERATION_ACTION: {oper_node_iri}, {old_out_edges}")
                 return True
             else:
                 logger_global.error("Linking nodes failed. Response code: " + str(response.status_code))
@@ -253,9 +254,11 @@ class LinkAPI:
             True if the construction has been linked with operations, and False otherwise
         """
         assert len(list_of_operation_iri), "No operation nodes listed"
+        node_info = self.fetch_node_with_iri(constr_node_iri)
+        already_existing_edges = node_info['items'][0]['_outE']
 
         # create out edges list of dictionaries
-        out_edge_to_operation = []
+        out_edge_to_operation = [*already_existing_edges]
         for operation_iri in list_of_operation_iri:
             out_edge_dict = {
                 "_label": self.DTP_CONFIG.get_ontology_uri('hasOperation'),
@@ -266,9 +269,48 @@ class LinkAPI:
         payload = json.dumps([{
             "_domain": self.DTP_CONFIG.get_domain(),
             "_iri": constr_node_iri,
-            "_outE": [
-                *out_edge_to_operation
-            ]
+            "_outE": out_edge_to_operation
+        }])
+
+        old_out_edges = [x['_targetIRI'] for x in already_existing_edges]
+        response = self.put_guarded_request(payload=payload, url=self.DTP_CONFIG.get_api_url('update_set'))
+        if not self.simulation_mode:
+            if response.ok:
+                if self.session_logger is not None:
+                    self.session_logger.info(
+                        f"DTP_API - NEW_LINK_CONSTR_OPERATION: {constr_node_iri}, {old_out_edges}")
+                return True
+            else:
+                logger_global.error("Linking nodes failed. Response code: " + str(response.status_code))
+                return False
+        return True
+
+    def link_node_action_to_asbuilt(self, action_node_iri, target_asbuilt_iri):
+        """
+        The method links an asbuilt nodes with its action.
+
+        Parameters
+        ----------
+        action_node_iri : str, obligatory
+            a valid action IRI
+        target_asbuilt_iri : list, obligatory
+            list of connected asbuilt iri
+
+        Returns
+        ------
+        bool
+            True if the action has been linked with asbuilt, and False otherwise
+        """
+        assert target_asbuilt_iri, "No target nodes given"
+        out_edge = {
+            "_label": self.DTP_CONFIG.get_ontology_uri('hasTarget'),
+            "_targetIRI": target_asbuilt_iri
+        }
+
+        payload = json.dumps([{
+            "_domain": self.DTP_CONFIG.get_domain(),
+            "_iri": action_node_iri,
+            "_outE": [out_edge]
         }])
 
         response = self.put_guarded_request(payload=payload, url=self.DTP_CONFIG.get_api_url('update_set'))
@@ -276,7 +318,7 @@ class LinkAPI:
             if response.ok:
                 if self.session_logger is not None:
                     self.session_logger.info(
-                        f"DTP_API - NEW_LINK_CONSTR_OPERATION: {constr_node_iri}, {list_of_operation_iri}")
+                        f"DTP_API - NEW_LINK_ACTION_ASBUILT: {action_node_iri}, {target_asbuilt_iri}")
                 return True
             else:
                 logger_global.error("Linking nodes failed. Response code: " + str(response.status_code))

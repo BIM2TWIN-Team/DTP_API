@@ -94,6 +94,8 @@
         <URI function="constructionSchedule" type="xs:anyURI">
             https://www.bim2twin.eu/ontology/CoreExtension#ConstructionSchedule
         </URI>
+        <URI function="hasPrecondition" type="xs:anyURI">https://www.bim2twin.eu/ontology/Core#hasPrecondition</URI>
+        <URI function="requiresProcess" type="xs:anyURI">https://www.bim2twin.eu/ontology/Core#requiresProcess</URI>
         <URI function="Wall" type="xs:anyURI">https://www.bim2twin.eu/ontology/Core#Wall</URI>
         <URI function="Column" type="xs:anyURI">https://www.bim2twin.eu/ontology/Core#Column</URI>
         <URI function="Covering" type="xs:anyURI">https://www.bim2twin.eu/ontology/Core#Covering</URI>

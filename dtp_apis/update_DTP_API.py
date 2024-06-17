@@ -21,6 +21,8 @@
 import json
 import os
 
+import validators
+
 from helpers import logger_global
 
 
@@ -77,15 +79,93 @@ class UpdateAPI:
                 return False
         return True
 
-    def update_action_node(self, task_type, action_node_iri, task_iri, target_as_built_iri, contractor,
-                           process_start, process_end):
+    def update_asbuilt_node(self, element_iri_uri, progress=None, timestamp=None, element_type=None, target_iri=None):
+        """
+        The method update as-Built elements.
+
+        Parameters
+        ----------
+        element_iri_uri : str, obligatory
+            the full IRI of the As-Built element
+        progress : int, obligatory
+            the progress in percentage of the As-Built element
+        timestamp : datetime, obligatory
+            associated timestamp in the isoformat(sep="T", timespec="seconds")
+        element_type : str, obligatory
+            element type as defined by the ontology, normally it should be
+            the same type as the type of the corresponding As-Designed element
+        target_iri : str, obligatory
+            the IRI of the associated element; here it should correspond to the IRI
+            of the respective As-Designed element
+
+        Raises
+        ------
+        It can raise an exception if the target or element IRIs are not valid URIs
+
+        Returns
+        ------
+        bool
+            True if the element has been updated without an error, and False otherwise
+        """
+
+        if not validators.url(element_iri_uri):
+            raise Exception("Sorry, the target IRI is not a valid URL.")
+
+        if target_iri:
+            if not validators.url(target_iri):
+                raise Exception("Sorry, the target IRI is not a valid URL.")
+
+        query_dict = {
+            "_domain": self.DTP_CONFIG.get_domain(),
+            "_iri": element_iri_uri,
+            "_visibility": 0
+        }
+
+        if element_type:
+            query_dict["_classes"] = [self.DTP_CONFIG.get_ontology_uri('classElement'), element_type]
+
+        if timestamp:
+            query_dict[self.DTP_CONFIG.get_ontology_uri('timeStamp')] = timestamp
+
+        if progress:
+            query_dict[self.DTP_CONFIG.get_ontology_uri('progress')] = progress
+
+        if progress == 100:
+            query_dict[self.DTP_CONFIG.get_ontology_uri('hasGeometryStatusType')] = self.DTP_CONFIG.get_ontology_uri(
+                'CompletelyDetected')
+
+        if target_iri:
+            query_dict["_outE"] = [
+                {
+                    "_label": self.DTP_CONFIG.get_ontology_uri('intentStatusRelation'),
+                    "_targetIRI": target_iri
+                }
+            ]
+
+        payload = json.dumps([query_dict])
+        response = self.put_guarded_request(payload=payload, url=self.DTP_CONFIG.get_api_url('update_set'))
+        if not self.simulation_mode:
+            if response.ok:
+                if self.session_logger is not None:
+                    self.session_logger.info("DTP_API - UPDATE_ELEMENT_IRI: " + element_iri_uri)
+                return True
+            else:
+                logger_global.error("Updating as-built node failed. Response code: " + str(response.status_code))
+                return False
+        return True
+
+    def update_action_node(self, action_node_iri, task_classification_code=None, task_classification_system=None,
+                           task_iri=None, target_as_built_iri=None, contractor=None, process_start=None,
+                           process_end=None):
         """
         The method updates a new operation.
 
         Parameters
         ----------
-        task_type : str, obligatory
-            a valid task type.
+        task_classification_code : str, obligatory
+            code of a classification system to specify the type of object or process.
+        task_classification_system : str, obligatory
+            a classification system to specify the type of object or process.
         action_node_iri: str, obligatory
             a valid action IRI of a node.
         task_iri:
@@ -114,38 +194,31 @@ class UpdateAPI:
         with open(dump_path, 'w') as fp:
             json.dump(node_info, fp)
 
-        out_edge_dict = {}
-        if target_as_built_iri:
-            out_edge_dict = {
-                "_label": self.DTP_CONFIG.get_ontology_uri('hasAction'),
-                "_targetIRI": target_as_built_iri
-            }
-
         query_dict = {
             "_domain": self.DTP_CONFIG.get_domain(),
             "_iri": action_node_iri,
-            "_outE": [out_edge_dict]
+            self.DTP_CONFIG.get_ontology_uri('classificationCode'): task_classification_code,
+            self.DTP_CONFIG.get_ontology_uri('classificationSystem'): task_classification_system,
         }
 
         if contractor:
             query_dict[self.DTP_CONFIG.get_ontology_uri('constructionContractor')] = contractor
 
+        out_edges = []
         if target_as_built_iri:
-            query_dict["_outE"].append({
+            out_edges.append({
                 "_label": self.DTP_CONFIG.get_ontology_uri('hasTarget'),
                 "_targetIRI": target_as_built_iri
             })
+
         if task_iri:
-            query_dict["_outE"].append({
+            out_edges.append({
                 "_label": self.DTP_CONFIG.get_ontology_uri('intentStatusRelation'),
                 "_targetIRI": task_iri
             })
 
-        if task_type:
-            query_dict["_outE"].append({
-                "_label": self.DTP_CONFIG.get_ontology_uri('hasTaskType'),
-                "_targetIRI": task_type
-            })
+        if out_edges:
+            query_dict["_outE"] = out_edges
 
         if process_start:
             query_dict[self.DTP_CONFIG.get_ontology_uri('processStart')] = process_start
@@ -166,15 +239,18 @@ class UpdateAPI:
                 return False
         return True
 
-    def update_operation_node(self, task_type, oper_node_iri, target_activity_iri, list_of_action_iri, process_start,
-                              last_updated, process_end):
+    def update_operation_node(self, oper_node_iri, op_classification_code=None, op_classification_system=None,
+                              target_activity_iri=None, list_of_action_iri=None, process_start=None, last_updated=None,
+                              process_end=None):
         """
         The method updates a new operation.
 
         Parameters
         ----------
-        task_type : str, obligatory
-            a valid task type from activity node.
+        op_classification_code : str, obligatory
+            code of a classification system to specify the type of object or process.
+        op_classification_system : str, obligatory
+            a classification system to specify the type of object or process.
         oper_node_iri : str, obligatory
             a valid IRI of a node.
         target_activity_iri : str, obligatory
@@ -203,13 +279,15 @@ class UpdateAPI:
         with open(dump_path, 'w') as fp:
             json.dump(node_info, fp)
 
-        out_edge_to_actions = []
+        # collecting already existing edges
+        already_existing_edges = node_info['items'][0]['_outE']
+        out_edge_to_actions = [*already_existing_edges]
+        already_existing_edges_iri = [edge_dict["_targetIRI"] for edge_dict in already_existing_edges]
         if list_of_action_iri:
-            # collecting already existing edges
-            already_existing_edges = node_info['items'][0]['_outE']
-            out_edge_to_actions = [*already_existing_edges]
             # create new out edges list of dictionaries
             for action_iri in list_of_action_iri:
+                if action_iri in already_existing_edges_iri:
+                    continue
                 out_edge_dict = {
                     "_label": self.DTP_CONFIG.get_ontology_uri('hasAction'),
                     "_targetIRI": action_iri
@@ -219,7 +297,8 @@ class UpdateAPI:
         query_dict = {
             "_domain": self.DTP_CONFIG.get_domain(),
             "_iri": oper_node_iri,
-            "_outE": out_edge_to_actions
+            self.DTP_CONFIG.get_ontology_uri('classificationCode'): op_classification_code,
+            self.DTP_CONFIG.get_ontology_uri('classificationSystem'): op_classification_system,
         }
 
         if process_start:
@@ -232,16 +311,14 @@ class UpdateAPI:
             query_dict[self.DTP_CONFIG.get_ontology_uri('processEnd')] = process_end
 
         if target_activity_iri:
-            query_dict["_outE"].append({
-                "_label": self.DTP_CONFIG.get_ontology_uri('intentStatusRelation'),
-                "_targetIRI": target_activity_iri
-            })
+            if target_activity_iri not in already_existing_edges_iri:
+                out_edge_to_actions.append({
+                    "_label": self.DTP_CONFIG.get_ontology_uri('intentStatusRelation'),
+                    "_targetIRI": target_activity_iri
+                })
 
-        if task_type:
-            query_dict["_outE"].append({
-                "_label": self.DTP_CONFIG.get_ontology_uri('hasTaskType'),
-                "_targetIRI": task_type
-            })
+        if out_edge_to_actions:
+            query_dict["_outE"] = out_edge_to_actions
 
         payload = json.dumps([query_dict])
 
@@ -256,14 +333,12 @@ class UpdateAPI:
                 return False
         return True
 
-    def update_construction_node(self, productionMethodType, constr_node_iri, workpkg_node_iri, list_of_operation_iri):
+    def update_construction_node(self, constr_node_iri, workpkg_node_iri=None, list_of_operation_iri=None):
         """
         The method updates construction node.
 
         Parameters
         ----------
-        productionMethodType : str, obligatory
-            a valid production method type from corresponding work package
         constr_node_iri : str, obligatory
             a valid IRI of a node.
         workpkg_node_iri : str, obligatory
@@ -288,36 +363,36 @@ class UpdateAPI:
             json.dump(node_info, fp)
 
         # update node if operation iri list has at least one item
-        out_edge_to_operation = []
-        if len(list_of_operation_iri):
-            # collecting already existing edges
-            already_existing_edges = node_info['items'][0]['_outE']
-            out_edge_to_operation = [*already_existing_edges]
+        # collecting already existing edges
+        already_existing_edges = node_info['items'][0]['_outE']
+        out_edge_to_constrcution = [*already_existing_edges]
+        already_existing_edges_iri = [edge_dict["_targetIRI"] for edge_dict in already_existing_edges]
+        if list_of_operation_iri:
             # create new out edges list of dictionaries
-            for action_iri in list_of_operation_iri:
+            for operation_iri in list_of_operation_iri:
+                if operation_iri in already_existing_edges_iri:
+                    continue
                 out_edge_dict = {
-                    "_label": self.DTP_CONFIG.get_ontology_uri('hasAction'),
-                    "_targetIRI": action_iri
+                    "_label": self.DTP_CONFIG.get_ontology_uri('hasOperation'),
+                    "_targetIRI": operation_iri
                 }
-                out_edge_to_operation.append(out_edge_dict)
+                out_edge_to_constrcution.append(out_edge_dict)
 
         query_dict = {
             "_domain": self.DTP_CONFIG.get_domain(),
             "_iri": constr_node_iri,
-            "_outE": out_edge_to_operation
+            "_outE": out_edge_to_constrcution
         }
 
-        if productionMethodType:
-            query_dict["_outE"].append({
-                "_label": self.DTP_CONFIG.get_ontology_uri('hasProductionMethodType'),
-                "_targetIRI": productionMethodType
-            })
-
         if workpkg_node_iri:
-            query_dict["_outE"].append({
-                "_label": self.DTP_CONFIG.get_ontology_uri('intentStatusRelation'),
-                "_targetIRI": workpkg_node_iri
-            })
+            if workpkg_node_iri not in already_existing_edges_iri:
+                out_edge_to_constrcution.append({
+                    "_label": self.DTP_CONFIG.get_ontology_uri('intentStatusRelation'),
+                    "_targetIRI": workpkg_node_iri
+                })
+
+        if out_edge_to_constrcution:
+            query_dict["_outE"] = out_edge_to_constrcution
 
         payload = json.dumps([query_dict])
 
@@ -355,7 +430,7 @@ class UpdateAPI:
             True if a blob has been node has been updated and False otherwise
         """
         if not is_revert_session:
-            assert previous_field_value, 'previous_field_value needed for logging'
+            assert previous_field_value is not None, 'previous_field_value needed for logging'
         payload = json.dumps([{
             "_domain": self.DTP_CONFIG.get_domain(),
             "_iri": node_iri,

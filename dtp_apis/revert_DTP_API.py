@@ -392,6 +392,46 @@ class RevertAPI:
                 return False
         return True
 
+
+    def unlink_action_asbuilt(self, action_node_iri, target_asbuilt_iri):
+        """
+        Unlink action and asbuilt node
+
+        Parameters
+        ----------
+        action_node_iri : str, obligatory
+            a valid action IRI
+        target_asbuilt_iri : list, optional
+            target asbuilt iri
+
+        Returns
+        -------
+        bool
+            True if the node is unlinked and False otherwise
+        """
+
+        payload = json.dumps([{
+            "_domain": self.DTP_CONFIG.get_domain(),
+            "_iri": action_node_iri,
+            "_outE": [
+                {
+                    "_label": self.DTP_CONFIG.get_ontology_uri('hasTarget'),
+                    "_targetIRI": target_asbuilt_iri
+                }
+            ]
+        }])
+        response = self.put_guarded_request(payload=payload, url=self.DTP_CONFIG.get_api_url('update_unset'))
+        if not self.simulation_mode:
+            if response.ok:
+                logger_global.info(
+                    f"Removed link {self.DTP_CONFIG.get_ontology_uri('hasTarget')} from {action_node_iri} "
+                    f"to {target_asbuilt_iri}")
+                return True
+            else:
+                logger_global.error("Unlink nodes failed. Response code: " + str(response.status_code))
+                return False
+        return True
+
     def delete_asdesigned_param_node(self, node_iri):
         """
         The method removes isAsDesigned field from node identified with node_iri
