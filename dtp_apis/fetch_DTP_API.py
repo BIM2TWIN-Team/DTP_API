@@ -562,7 +562,7 @@ class FetchAPI:
         Returns
         ------
         int
-            return the number of defect nodes connected to the node identified by node_iri
+            return the as-built node connected to a as-planned node identified by node_iri
         """
 
         payload = json.dumps({
@@ -603,7 +603,7 @@ class FetchAPI:
         Returns
         ------
         int
-            return the number of defect nodes connected to the node identified by node_iri
+            return the operation node connected to the activity node identified by node_iri
         """
 
         payload = json.dumps({
@@ -1423,3 +1423,63 @@ class FetchAPI:
         else:
             logger_global.error("The blob cannot be fetched. Status code: " + str(response.status_code))
             raise Exception("The blob cannot be fetched. Status code: " + str(response.status_code))
+
+    def fetch_defect_nodes(self, element_node_iri, url=None):
+        """
+        The method queries defect nodes connected to an as-built node.
+
+        Parameters
+        ----------
+        element_node_iri : str, obligatory
+            a valid element IRI of an as-built element, which is linked to a defect
+        url : str, optional
+            used to fetch a next page
+
+        Returns
+        ------
+        dictionary
+            JSON mapped to a dictionary. Defect nodes.
+        """
+
+        payload = json.dumps({
+            "query": [{
+                "$domain": self.DTP_CONFIG.get_domain(),
+                "iri": element_node_iri,
+                "->" + self.DTP_CONFIG.get_ontology_uri('hasGeometricDefect'): {
+                    "$alias": "defect"
+                }
+            }],
+            "return": "defect"
+        })
+
+        req_url = self.DTP_CONFIG.get_api_url('get_find_elements') if not url else url
+        return self.post_general_request(payload, req_url).json()
+
+    def fetch_defect_type(self, defect_node_iri):
+        """
+        The method queries defect nodes connected to an as-built node.
+
+        Parameters
+        ----------
+        defect_node_iri : str, obligatory
+            a valid defect node IRI connected to an as-built element
+
+        Returns
+        ------
+        dictionary
+            JSON mapped to a dictionary. Defect type nodes.
+        """
+
+        payload = json.dumps({
+            "query": [{
+                "$domain": self.DTP_CONFIG.get_domain(),
+                "iri": defect_node_iri,
+                "->" + self.DTP_CONFIG.get_ontology_uri('hasDefectType'): {
+                    "$alias": "defect_type"
+                }
+            }],
+            "return": "defect_type"
+        })
+
+        req_url = self.DTP_CONFIG.get_api_url('get_find_elements')
+        return self.post_general_request(payload, req_url).json()

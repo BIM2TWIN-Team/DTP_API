@@ -174,9 +174,14 @@ class CreateAPI:
                 "_domain": self.DTP_CONFIG.get_domain(),
                 "_iri": defect_node_iri,
                 "_visibility": 0,
-                self.DTP_CONFIG.get_ontology_uri('hasDefectType'): defect_type,
                 self.DTP_CONFIG.get_ontology_uri('timeStamp'): timestamp,
-                self.DTP_CONFIG.get_ontology_uri('defect_criticality'): defect_criticality
+                self.DTP_CONFIG.get_ontology_uri('defect_criticality'): defect_criticality,
+                "_outE": [
+                    {
+                        "_label": self.DTP_CONFIG.get_ontology_uri('hasDefectType'),
+                        "_targetIRI": defect_type
+                    }
+                ]
             }
         ])
 
