@@ -25,8 +25,9 @@ Once the conda environment is set up and activated, we are ready to run the code
 
 ## Authentication
 
-Authentication token from [Thing'in](https://thinginthefuture.bim2twin.eu) should be placed in a `.txt` file without
-string `Bearer` in the token and path to this file should be given in the `DTP_config.xml`.
+DTP_API will automatically get the authentication token from [Thing'in](https://thinginthefuture.bim2twin.eu). It will
+prompt you to enter your Thing'in credentials. The Thing'in token expires after 24hrs; thus, you only will be asked to
+enter your credentials again when the current token is expired.
 
 ## Logged information
 
@@ -34,7 +35,7 @@ Currently, the program is using two logs: the general log stored in `global.log`
 used or storing information about database changing queries. The second log can be used to revert changes done on the
 database. In order to revert to the last session, it is necessary to call the program with the argument `-r` followed by
 the path to the file. In principle, the database can also be restored from the general log file, but this option has not
-been sufficiently tested. `db_session_x.log` will be stored in `sessions` folder in log path (`LOG_DIR` in 
+been sufficiently tested. `db_session_x.log` will be stored in `sessions` folder in log path (`LOG_DIR` in
 `DTP_config.xml`).
 
 **Note that, the general log file `global.log`, contains also raw HTTP requests, together with the authentication
